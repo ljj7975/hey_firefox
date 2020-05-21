@@ -1,0 +1,4 @@
+[submodule "honkling-models"]
+	path = honkling-models
+	url = git@github.com:castorini/honkling-models.git
+	branch = firefox
