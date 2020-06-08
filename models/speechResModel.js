@@ -129,32 +129,13 @@ class SpeechResModel {
 			outputs: softmax,
 		});
 
-		this.model.compile({
-			optimizer: tf.train.sgd(personalizationConfig.learningRate),
-			loss: 'categoricalCrossentropy',
-			metrics: ['accuracy'],
-		});
-
 		this.model.summary();
 
-		let cached_weight = null;
-		if (typeof(Storage) !== "undefined" && modelName == "RES8_NARROW") {
-			let cachedItem = localStorage.getItem("personalized");
-			if (cachedItem) {
-				cached_weight = JSON.parse(cachedItem);
-			}
-		}
-
 		// weights loading
-		if (cached_weight) {
-			console.log('loading personalized Honkling')
-			this.loadWeight(layers, cached_weight, false);
-		} else {
-			this.loadWeight(layers, weights[modelName]);
-		}
+		this.loadWeight(layers, weights[modelName]);
 	}
 
-
+    // load pretrained weights from json file
 	loadWeight(layers, weights, pytorch=true) {
 		// preprocee weights before assignment
 		let processedWeights = {};
@@ -247,90 +228,6 @@ class SpeechResModel {
 		}
 	}
 
-	storePersonalizedWeight() {
-		let processedWeights = {};
-		for (var i = 0; i < this.model.layers.length; i++) {
-			for (var j = 0; j < this.model.layers[i].getWeights().length; j++) {
-
-				// renaming to match pytorch weights
-				let weightName = this.model.layers[i].getWeights()[j].name.split('/').join('.')
-				if (weightName.includes("conv") || weightName.includes("output")) {
-					weightName = weightName.replace("kernel", "weight");
-				} else if (weightName.includes("bn")) {
-					weightName = weightName.replace("moving_mean", "running_mean");
-					weightName = weightName.replace("moving_variance", "running_var");
-				}
-
-				let dataSize = this.model.layers[i].getWeights()[j].shape;
-				let values = Array.prototype.slice.call(this.model.layers[i].getWeights()[j].dataSync());
-				processedWeights[weightName] = math.reshape(values, dataSize);
-			}
-		}
-		localStorage.setItem("personalized", JSON.stringify(processedWeights));
-	}
-
-	async train(x, y, statusTag) {
-		let batchSize = y.length;
-		if (x.length != batchSize) {
-			console.error('mismatching size of input. (X : ' + x.length + ', Y : ' + y.length + ')');
-		}
-		let dataSize = [batchSize].concat(this.config['input_shape']);
-
-		x = math.reshape(x, dataSize);
-		let batchX = tf.tensor4d(x, dataSize, 'float32');
-		let batchY = tf.oneHot(y, this.config['n_labels']);
-		let result = {};
-
-		// accuracy before personalization
-		let axis = 1;
-		let output = this.model.predict(batchX);
-		let basePrediction = output.argMax(axis).dataSync();
-		result["baseAcc"] = calculateAccuracy(basePrediction, y);
-
-		// fine tune
-		let options = {
-			batchSize: batchSize,
-			epochs: personalizationConfig.epochs,
-			validationSplit: personalizationConfig.validationSplit,
-			shuffle: personalizationConfig.shuffle,
-			callbacks: {
-				onEpochEnd: async (epoch, logs) => {
-					let text = "Please wait while Honkling gets personalized!<br><br>";
-					text += "< Epoch " + (epoch+1) + " / " + personalizationConfig.epochs + " ><br><br>";
-					text += "Accuracy : " + Math.round(logs.acc * 100) + " %<br>";
-					let timeElapsed = ((new Date() - startTime) / (60 * 1000)).toFixed(2); // in mins
-					text += "Time elapsed : " + timeElapsed + " mins<br>";
-					let remainingTime = (timeElapsed / (epoch+1) * personalizationConfig.epochs).toFixed(2);
-					text += "Expected remaining time : " + remainingTime + " mins";
-					statusTag.html(text);
-				}
-			}
-		}
-		console.log("batchSize : ", batchSize);
-		console.log("training options : ", options);
-		let startTime = new Date();
-		const history = await this.model.fit(batchX, batchY, options);
-		result["trainingTime"] = ((new Date() - startTime) / (60 * 1000)).toFixed(2); // in mins
-
-		// report accuracy increase
-		output = this.model.predict(batchX);
-		let personalizedPrediction = output.argMax(axis).dataSync();
-		result["personalizedAcc"] = calculateAccuracy(personalizedPrediction, y);
-
-		console.log('true labels :', y);
-		console.log('basePrediction :', basePrediction);
-		console.log('personalizedPrediction :', personalizedPrediction);
-
-		console.log("trainAcc : ", history["history"]["acc"]);
-		console.log("valAcc : ", history["history"]["valAcc"]);
-
-		if (typeof(Storage) !== "undefined") {
-			this.storePersonalizedWeight();
-		}
-
-		return result;
-	}
-
 	predict(x) {
 		if (!(x instanceof tf.Tensor)) {
 			x = tf.tensor(x);
@@ -340,10 +237,5 @@ class SpeechResModel {
 
 		let output = this.model.predict(x.reshape(input_shape));
 		return output.dataSync();
-	}
-
-	async save() {
-		const saveResult = await this.model.save('downloads://speech_res_model');
-		console.log('saving model has completed', saveResult);
 	}
 }

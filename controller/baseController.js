@@ -1,3 +1,4 @@
+$("#navBarPlaceholder").load("view/header.html");
 $("#footerPlaceholder").load("view/footer.html");
 
 var isMobile = false; //initiate as false
@@ -22,4 +23,130 @@ if (isiOS) {
   alert('Honkling is not supported on iOS');
 } else if (!isFirefox && !isChrome) {
   alert('Honkling is not supported on this browser\nWe recommand Firefox or Chrome');
+}
+
+// functionality
+
+// This is just a logging window where we display the status
+function updateStatus(newStatus) {
+  $('#statusBar').text(newStatus);
+};
+
+let toggleTime = 1500;
+
+function init_view(commands) {
+  commands = ["unknown", "hey", "fire", "fox"]
+  reordered = [];
+  commands.forEach(function(command) {
+    if (command != "silence" && command != "unknown") {
+      reordered.push(command);
+    }
+  });
+
+  for (let i = 0; i < reordered.length; i++) {
+      $('#commandList1').append(
+        $('<li>').attr('class','list-group-item ' + reordered[i] + '_button text-center').append(reordered[i].toUpperCase()));
+  }
+
+  $('#commandList2').append(
+    $('<li>').attr('class','list-group-item hey_fire_fox_button text-center').append("hey firefox"));
+
+  $('#commandList3').append(
+    $('<li>').attr('class','list-group-item unknown_button text-center').append("unknown"));
+
+  $('.unknown_button').addClass('list-group-item-dark');
+}
+
+let lastCommand;
+let lastToggleTime = 0;
+
+function toggleCommand(command) {
+  lastCommand = command;
+  lastToggleTime = new Date().getTime();
+  $('.commandList .active').removeClass('active');
+  $('.commandList .'+command+'_button').addClass('active');
+}
+
+function toggleFullWord() {
+  console.log("HEY FIREFOX DETECTED")
+  $('.commandList .hey_fire_fox_button').addClass('active');
+  setTimeout(function () {
+    $('.commandList .hey_fire_fox_button').removeClass('active');
+  }, 4000);
+}
+
+let status = 0;
+let detectCounter = 0;
+// status
+// 0 = nothing
+// 1 = hey within last x frames
+// 2 = hey fire within last x frames
+
+function updateToggledCommand(command) {
+
+  command = command.toLowerCase();
+
+  if (command == 'silence') {
+    command = 'unknown';
+  }
+
+  if (command.includes('unknown')) {
+    command = 'unknown';
+  }
+
+  if (!commands.includes(command)) {
+    command = 'unknown'
+  }
+
+  currentTime = new Date().getTime();
+
+  if (command != 'unknown') {
+    if (lastCommand != command) {
+      updateStatus('keyword spoken is ... ' + command.toUpperCase() + ' !!');
+      toggleCommand(command);
+    }
+  } else if (lastCommand != 'unknown' && currentTime > lastToggleTime + toggleTime) {
+    // current command is unknown
+    updateStatus('Say one of the following keywords');
+    toggleCommand(command);
+  }
+
+  if (command == "hey") {
+    if (status == 2) { // incorrect timing
+      detectCounter = 0;
+      status = 0;
+    } else if (status == 0) { // correct timing
+      status = 1;
+      detectCounter = 0;
+    }
+  } else if (command == "fire") {
+    if (detectCounter > 0 && status == 2) { // duplicated words
+      detectCounter = 0;
+      status = 0;
+    } else if (status == 0) { // incorrect timing
+      detectCounter = 0;
+      status = 0;
+    } else if (status == 1) { // correct timing
+      status = 2;
+      detectCounter = 0;
+    }
+
+  } else if (command == "fox") {
+    if (status == 2) { // correct timing
+      toggleFullWord();
+      detectCounter = 0;
+      status = 0;
+    } else { // incorrect timing
+      detectCounter = 0;
+      status = 0;
+    }
+  }
+
+  if (command == "unknown" && status != 0) {
+    detectCounter += 1;
+    if (detectCounter > detectCounterThreshold) {
+      detectCounter = 0;
+      status = 0;
+    }
+  }
 }

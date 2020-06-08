@@ -15,49 +15,50 @@
 </head>
 <body>
   <div class="container">
-    <div class="row">
-      <div class="col">
-        <p id="statusBar" class="text-center">Allow microphone access to record a keyword</p>
-      </div>
-    </div>
+      <div class="row justify-content-center" id="navBarPlaceholder"></div>
 
-    <div id="waveformWrapper" class="row">
-      <div class="col">
-        <div id="waveform" class="text-center"></div>
+      <div class="row">
+        <div class="col">
+          <p id="statusBar" class="text-center">Allow microphone access to record a keyword</p>
+        </div>
       </div>
-    </div>
 
-    <div class="row">
-      <div class="col">
-        <ul id="commandList1" class="commandList commandList1 list-group">
-        </ul>
+      <div id="waveformWrapper" class="row">
+        <div class="col">
+          <div id="waveform" class="text-center"></div>
+        </div>
       </div>
-      <hr>
-    </div>
-    <div class="row">
-      <div class="col">
-        <ul id="commandList2" class="commandList list-group">
-        </ul>
-      </div>
-      <hr>
-    </div>
-    <div class="row">
-      <div class="col">
-        <ul id="commandList3" class="commandList commandList1 list-group">
-        </ul>
-      </div>
-      <hr>
-    </div>
 
+      <div class="row">
+        <div class="col">
+          <ul id="commandList1" class="commandList list-group">
+          </ul>
+        </div>
+        <hr>
+      </div>
+      <div class="row">
+        <div class="col">
+          <ul id="commandList2" class="commandList list-group">
+          </ul>
+        </div>
+        <hr>
+      </div>
+      <div class="row">
+        <div class="col">
+          <ul id="commandList3" class="commandList list-group">
+          </ul>
+        </div>
+        <hr>
+      </div>
 
     <button id="startBtn">Start</button>
     <button id="stopBtn">Stop</button>
 
     <div id="footerPlaceholder"></div>
   </div>
-  <script src="common/baseController.js"></script>
   <script src="common/config.js"></script>
   <script src="common/util.js"></script>
+  <script src="controller/baseController.js"></script>
   <script src="controller/pocketsphinxController.js"></script>
 </body>
 </html>
