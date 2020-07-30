@@ -10,7 +10,7 @@ Unlike the existing implementation of Honkling, this implementation functions as
 
 * `docker build -t honkling .`
 
-* `nvidia-docker run -it -p 8000:8000 -v $(pwd):/app/src/ -v /data/kws/mozilla_processed:/data honkling` (use `docker` instead of `nvidia-docker` if GPU is missing)
+* `nvidia-docker run -it --net host -v $(pwd):/app/src/ -v /data/kws/mozilla_processed:/data honkling` (use `docker` instead of `nvidia-docker` if GPU is missing)
 
 * `npm run dev` for starting up a server
 
