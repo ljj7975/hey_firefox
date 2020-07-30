@@ -1,5 +1,6 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const HtmlCssExtractPlugin = require("mini-css-extract-plugin");
+const path = require("path");
 
 module.exports = {
   module: {
@@ -48,5 +49,9 @@ module.exports = {
       filename: "[name].css",
       chunkFilename: "[id].css"
     })
-  ]
+  ],
+  output: {
+    filename: "main.js",
+    path: path.resolve("./dist/frontend/")
+  }
 }
