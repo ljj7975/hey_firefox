@@ -9,5 +9,4 @@ data/*.gz
 /node_modules
 package-lock.json
 honkling-assistant/Mojibar-darwin-x64
-dist_front
-dist_back
+dist

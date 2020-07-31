@@ -1,8 +1,14 @@
-const HtmlWebPackPlugin = require("html-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 
 module.exports = {
+  mode: "development",
+  entry: "./src/index.js",
+  output: {
+    filename: "main.[contentHash].js",
+    path: path.resolve(__dirname, "dist/frontend/")
+  },
   module: {
     rules: [
       {
@@ -26,9 +32,9 @@ module.exports = {
       {
         test: /\.scss$/,
         use: [
-          "style-loader",
-          "css-loader",
-          "sass-loader"
+          "style-loader", // 3. Inject styles into DOM
+          "css-loader", // 2. Turns css into commonjs
+          "sass-loader" // 1. Turns sass into css
         ]
       },
       {
@@ -39,19 +45,15 @@ module.exports = {
       }
     ]
   },
-  optimization: {
-    minimize: false
-  },
   plugins: [
-    new HtmlCssExtractPlugin({
-      // Options similar to the same options in webpackOptions.output
-      // both options are optional
-      filename: "[name].css",
-      chunkFilename: "[id].css"
+    new HtmlWebpackPlugin({
+      template: "./src/view/honkling.html"
     })
-  ],
-  output: {
-    filename: "main.js",
-    path: path.resolve("./dist/frontend/")
-  }
+    // new HtmlCssExtractPlugin({
+    //   // Options similar to the same options in webpackOptions.output
+    //   // both options are optional
+    //   filename: "[name].css",
+    //   chunkFilename: "[id].css"
+    // })
+  ]
 }
