@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server",
-    "build_front": "webpack --config webpack-front.config.js",
-    "build_back": "webpack --config webpack-back.config.js"
+    "frontend": "webpack-dev-server --config webpack-front.config.js",
+    "backend": "webpack-dev-server --config webpack-back.config.js",
+    "build_frontend": "webpack --config webpack-front.config.js",
+    "build_backend": "webpack --config webpack-back.config.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,6 +15,7 @@
     "@tensorflow/tfjs-node-gpu": "^2.0.1",
     "beefy": "^2.1.8",
     "browserify": "^16.5.1",
+    "clean-webpack-plugin": "^3.0.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "moment": "^2.25.3",
@@ -31,8 +33,11 @@
     "file-loader": "^6.0.0",
     "html-loader": "^1.1.0",
     "html-webpack-plugin": "^4.3.0",
+    "jquery": "^3.5.1",
     "mini-css-extract-plugin": "^0.9.0",
     "node-sass": "^4.14.1",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "popper.js": "^1.16.1",
     "sass-loader": "^9.0.2",
     "style-loader": "^1.2.1",
     "webpack": "^4.44.0",
